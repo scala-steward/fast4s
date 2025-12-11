@@ -1,0 +1,20 @@
+package io.fast4s.example
+
+import decoda.{*, given }
+import Decoder.given, Encoder.given
+
+object models:
+
+  case class Person(id: Int = 0, name: String = "")
+
+  val encoder: Encoder[Person] =
+    Encoder.typ[Person]
+      |> Encoder.field("id", _.id)
+      |> Encoder.field("name", _.name)
+
+  val decoder: Decoder[Person] =
+    Decoder.typ[Person]
+      |> Decoder.field("id", (p, i: Int) => p.copy(id = i))
+      |> Decoder.field("name", (p, s: String) => p.copy(name = s))
+
+

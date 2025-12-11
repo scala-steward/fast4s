@@ -1,2 +1,5 @@
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.7")
-//addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "2.0.9")
+
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
+addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
