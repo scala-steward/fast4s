@@ -5,7 +5,8 @@ import via.{RequestBuilder, RouteEntry}
 
 type Fast4sRequestBuilder = RequestBuilder[Request, RawRequest]
 type HttpServerCreator = HttpServerConfigs => HttpServer
-type HttpServerCreatorR = Fast4sRequestBuilder ?=> HttpServerConfigs => HttpServer
+type HttpServerCreatorR =
+  Fast4sRequestBuilder ?=> HttpServerConfigs => HttpServer
 
 class HttpServerBuilder:
 
@@ -35,7 +36,9 @@ class HttpServerBuilder:
     cfg = cfg.copy(recover = Some(recover))
     this
 
-  def withInterceptor(status: Int)(interceptor: => Interceptor): HttpServerBuilder =
+  def withInterceptor(status: Int)(
+      interceptor: => Interceptor
+  ): HttpServerBuilder =
     cfg = cfg.copy(interceptors = cfg.interceptors + (status -> interceptor))
     this
 

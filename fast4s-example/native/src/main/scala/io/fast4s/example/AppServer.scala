@@ -11,13 +11,12 @@ object AppServer:
 
   def serve(using HttpServerCreator): Int =
 
-    val logger: RouteEnter = enter(GET):
-      req =>
-        println(s"enter in ${req.target}")
-        req
+    val logger: RouteEnter = enter(GET): req =>
+      println(s"enter in ${req.target}")
+      req
 
-    val home: Route = route(GET, root):
-      req => Response.ok("alive!")
+    val home: Route = route(GET, root): req =>
+      Response.ok("alive!")
 
     val ping: Route = route(GET, root / "ping"):
       case _ => Response.ok("pong")
@@ -29,5 +28,3 @@ object AppServer:
       )
       .build
       .serve
-
-

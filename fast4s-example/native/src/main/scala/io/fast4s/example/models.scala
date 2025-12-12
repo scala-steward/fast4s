@@ -1,6 +1,6 @@
 package io.fast4s.example
 
-import decoda.{*, given }
+import decoda.{*, given}
 import Decoder.given, Encoder.given
 
 object models:
@@ -16,5 +16,3 @@ object models:
     Decoder.typ[Person]
       |> Decoder.field("id", (p, i: Int) => p.copy(id = i))
       |> Decoder.field("name", (p, s: String) => p.copy(name = s))
-
-

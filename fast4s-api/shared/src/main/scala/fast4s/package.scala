@@ -33,15 +33,14 @@ package object fast4s:
     Put,
     Delete,
     Trace,
-    Connect,
+    Connect
   }
-  
+
   export io.fast4s.api.Fast4s
   export io.fast4s.api.Fast4s.fast
 
   given requestBuilder: Fast4sRequestBuilder {
-    def build(routeInfo: RouteInfo,
-              extra: Option[RawRequest]): Request =
+    def build(routeInfo: RouteInfo, extra: Option[RawRequest]): Request =
 
       val headers = extra.map(_.headers).getOrElse(Map())
       val contentType = headers
@@ -64,4 +63,4 @@ package object fast4s:
   }
 
   // router
-  //export io.micro.router.*
+  // export io.micro.router.*
