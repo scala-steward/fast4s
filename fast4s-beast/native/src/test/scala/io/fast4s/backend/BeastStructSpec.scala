@@ -41,7 +41,7 @@ class BeastStructSpec extends AnyFunSuite with Matchers:
       val req = Request(
         method = HttpMethod.Get,
         target = "/",
-        rawBody = Seq('A', 'B', 'C', 'D'),
+        bodyRaw = Seq('A', 'B', 'C', 'D'),
         headers = Map("Content-Type" -> "application/json; charset=UTF-8", "Accept-Encoding" -> "gzip", "Accept-Language" -> "en-US,es;q=0.5"),
       )
 

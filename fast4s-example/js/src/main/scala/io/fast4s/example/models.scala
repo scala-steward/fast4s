@@ -1,7 +1,8 @@
 package io.fast4s.example
 
-import decoda.{*, given }
-import Decoder.given, Encoder.given
+import decoda.Decoder.given
+import decoda.Encoder.given
+import decoda.{*, given}
 
 object models:
 

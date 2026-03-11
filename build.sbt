@@ -1,14 +1,20 @@
-import sbt.Keys.scalaVersion
+resolvers += Resolver.sonatypeCentralRepo("snapshots")
 
+import sbt.Keys.scalaVersion
 import scala.language.postfixOps
 import scala.scalanative.build.*
 import scala.sys.process.*
+import scala.language.postfixOps
+import bindgen.interface.Binding
+import bindgen.plugin.BindgenMode
+import com.indoorvivants.detective.Platform
 
-val scala3Version = "3.8.0-RC3"
+val scala3Version = "3.8.1"
 
 ThisBuild / scalaVersion := scala3Version
 
 val sharedSettings = Seq(
+  version := "0.0.1",
   javacOptions ++= Seq("-source", "25", "-target", "25"),
   scalaVersion := scala3Version,
   scalacOptions ++= Seq(
@@ -106,7 +112,7 @@ lazy val `fast4s-beast` =
   crossProject(JSPlatform, JVMPlatform, NativePlatform).
   crossType(CrossType.Full).
   in(file("fast4s-beast")).
-  dependsOn(`fast4s-core`).
+  dependsOn(`fast4s-api`).
   settings(sharedSettings *).
   settings(
     name := "fast4s-beast",
@@ -116,11 +122,101 @@ lazy val `fast4s-beast` =
     )
   )
 
+lazy val `fast4s-node` =
+  crossProject(JSPlatform, JVMPlatform, NativePlatform).
+    crossType(CrossType.Full).
+    in(file("fast4s-node")).
+    dependsOn(`fast4s-api`).
+    settings(sharedSettings *).
+    settings(
+      name := "fast4s-node",
+      organization := "io.fast4s.backend.node",
+      libraryDependencies ++= Seq(
+        "org.scalatest" %%% "scalatest" % "3.2.19" % "test"
+      )
+    )
+
+lazy val `fast4s-redis` =
+  crossProject(JSPlatform, JVMPlatform, NativePlatform).
+    crossType(CrossType.Full).
+    in(file("fast4s-redis")).
+    settings(sharedSettings *).
+    settings(
+      name := "fast4s-redis",
+      organization := "io.fast4s.redis",
+      libraryDependencies ++= Seq(
+        "org.scalatest" %%% "scalatest" % "3.2.19" % "test"
+      )
+    ).
+    nativeEnablePlugins(BindgenPlugin, VcpkgNativePlugin, ScalaNativeJUnitPlugin).
+    nativeSettings(
+      // vcpkg
+      vcpkgDependencies := VcpkgDependencies("hiredis"),
+      //vcpkgNativeConfig ~= { _.addRenamedLibrary("hiredis", "hiredis") },
+
+      nativeConfig ~= { c =>
+        c.withLinkingOptions(c.linkingOptions.flatMap {
+            case "-lresolv-lresolv" => Some("-lresolv")
+            case "-lm-lresolv"      => None
+            case other              => Some(other)
+          } ++ Seq("-lhiredis"))
+      },
+
+
+
+      bindgenBindings += {
+        val actualIncludeFolder = new File(
+          vcpkgConfigurator.value.pkgConfig
+            .compilationFlags("hiredis")
+            .toList
+            .filter(_.contains("include/hiredis"))
+            .head
+            .stripPrefix("-I")
+        )
+        Binding(actualIncludeFolder / "hiredis.h", "hiredis")
+          .withLinkName("hiredis")
+          .withCImports(List("hiredis/hiredis.h"))
+          .withClangFlags(
+            vcpkgConfigurator.value.pkgConfig
+              .updateCompilationFlags(List("-std=gnu99"), "hiredis")
+              .toList
+          )
+      }
+    ).
+    nativeSettings(bindgenSettings).
+    nativeSettings(configurePlatform())
+
+val bindgenSettings = Seq(
+  bindgenMode := BindgenMode.Manual(
+    scalaDir = (Compile / sourceDirectory).value / "scala" / "io" / "fast4s" / "hiredis",
+    cDir = (Compile / resourceDirectory).value / "scala-native" / "hiredis"
+  ),
+  bindgenBindings := {
+    bindgenBindings.value.map(_.withNoLocation(true))
+  }
+)
+
+def configurePlatform(rename: String => String = identity) = Seq(
+  nativeConfig := {
+    val conf = nativeConfig.value
+    val arch64 =
+      if (Platform.arch == Platform.Arch.Arm && Platform.bits == Platform.Bits.x64)
+        List("-arch", "arm64")
+      else Nil
+
+    conf
+      .withLinkingOptions(conf.linkingOptions ++ arch64)
+      .withCompileOptions(conf.compileOptions ++ arch64)
+  }
+)
+
+
 lazy val `fast4s-example` =
   crossProject(JSPlatform, JVMPlatform, NativePlatform).
   crossType(CrossType.Full).
   in(file("fast4s-example")).
   dependsOn(`fast4s-beast`).
+  dependsOn(`fast4s-node`).
   dependsOn(`fast4s-api`).
   settings(sharedSettings *).
   settings(
@@ -130,6 +226,10 @@ lazy val `fast4s-example` =
       "io.decoda" %%% "decoda" % "0.0.1",
       "org.scalatest" %%% "scalatest" % "3.2.19" % "test"
     ),
+  ).
+  jsSettings(
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   ).
   nativeSettings(
     nativeConfig ~= { c =>

@@ -269,7 +269,7 @@ object Ext:
         target = req.target,
         body = req.body.getOrElse(""),
         contentType = req.contentType.map(ContentType.make).getOrElse(ContentType.Empty),
-        rawBody = req.rawBody.getOrElse(Nil),
+        bodyRaw = req.rawBody.getOrElse(Nil),
         headers = req.headers,
       )
 
@@ -292,7 +292,7 @@ object Ext:
         req.contentType.mimeType.c_str,
         BeastBody(
           Option.when(req.body.nonEmpty)(req.body),
-          Option.when(req.rawBody.nonEmpty)(req.rawBody)),
+          Option.when(req.bodyRaw.nonEmpty)(req.bodyRaw)),
         BeastHeaders(req.headers))
 
 

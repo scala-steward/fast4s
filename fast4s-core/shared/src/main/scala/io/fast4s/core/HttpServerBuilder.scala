@@ -1,11 +1,9 @@
 package io.fast4s.core
 
-import io.fast4s.data.{RawRequest, Request, Response}
-import via.{RequestBuilder, RouteEntry}
+import io.fast4s.data.{Request, Response}
+import via.types.*
 
-type Fast4sRequestBuilder = RequestBuilder[Request, RawRequest]
 type HttpServerCreator = HttpServerConfigs => HttpServer
-type HttpServerCreatorR = Fast4sRequestBuilder ?=> HttpServerConfigs => HttpServer
 
 class HttpServerBuilder:
 
@@ -63,4 +61,5 @@ class HttpServerBuilder:
     creator(cfg).build
 
 object HttpServerBuilder:
+
   def apply(): HttpServerBuilder = new HttpServerBuilder()

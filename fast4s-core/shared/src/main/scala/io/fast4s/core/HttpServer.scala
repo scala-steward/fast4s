@@ -2,7 +2,7 @@ package io.fast4s.core
 
 import io.fast4s.data.{RawRequest, Request, Response, toMethod}
 import via.*
-
+import via.types.*
 import scala.annotation.tailrec
 import scala.compiletime.uninitialized
 
@@ -100,7 +100,7 @@ private[fast4s] object HttpServer:
     val method = request.method.toMethod
     val extra = RawRequest(
       request.body,
-      request.rawBody,
+      request.bodyRaw,
       request.headers
     )
 

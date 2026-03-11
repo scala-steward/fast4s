@@ -1,10 +1,10 @@
 package io.fast4s.example
 
-import io.fast4s.core.HttpServerCreator
-import via.*
 import fast4s.*
+import io.fast4s.core.HttpServerCreator
 import io.fast4s.data.ContentType.Json
 import io.fast4s.example.models.Person
+import via.*
 
 object AppServer:
 

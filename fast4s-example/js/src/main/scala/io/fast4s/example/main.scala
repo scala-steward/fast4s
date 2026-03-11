@@ -1,6 +1,6 @@
 package io.fast4s.example
 
-import fast4s.backend.beast.sync
+import fast4s.backend.node.async
 //import fast4s.requestBuilder
 
 
